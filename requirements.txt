@@ -1,0 +1,6 @@
+vizdoom~=1.2.1
+numpy~=1.26.0
+gymnasium~=0.29.1
+setuptools~=65.5.1
+wheel~=0.38.4
+pygame~=2.5.2
