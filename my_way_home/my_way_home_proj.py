@@ -15,12 +15,6 @@ def initialize_vizdoom(config_file_path):
 game = initialize_vizdoom("../scenarios/my_way_home.cfg")
 
 
-def distance(point1, point2):
-    x1, y1 = point1
-    x2, y2 = point2
-    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-
-
 class RandomAgent:
     def __init__(self, actions):
         self.actions = actions
@@ -32,10 +26,18 @@ class RandomAgent:
 actions = [list(a) for a in it.product([0, 1], repeat=game.get_available_buttons_size())]
 agent = RandomAgent(actions)
 
-# Start Training:
-num_episodes = 100
 
-for i in range(num_episodes):
+def distance(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+
+
+# Start Training:
+
+
+episodes = 100
+for i in range(episodes):
     game.new_episode()
     while not game.is_episode_finished():
         state = game.get_state()
