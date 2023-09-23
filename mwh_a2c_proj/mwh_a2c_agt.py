@@ -5,6 +5,7 @@ import itertools as it
 import numpy as np
 #import pandas as pd
 
+
 class VizdoomEnv(gym.Env):
     def __init__(self, config_file_path):
         super(VizdoomEnv, self).__init__()
