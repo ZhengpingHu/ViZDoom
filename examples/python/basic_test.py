@@ -12,35 +12,21 @@
 #####################################################################
 
 import os
-from random import choice
+#from random import choice
 from time import sleep
-
+import numpy as np
 import vizdoom as vzd
 
 
 if __name__ == "__main__":
-    # Create DoomGame instance. It will run the game and communicate with you.
+
     game = vzd.DoomGame()
-
-    # Now it's time for configuration!
-    # load_config could be used to load configuration instead of doing it here with code.
-    # If load_config is used in-code configuration will also work - most recent changes will add to previous ones.
-    # game.load_config("../../scenarios/basic.cfg")
-
-    # Sets path to additional resources wad file which is basically your scenario wad.
-    # If not specified default maps will be used and it's pretty much useless... unless you want to play good old Doom.
     game.set_doom_scenario_path(os.path.join(vzd.scenarios_path, "basic.wad"))
-
-    # Sets map to start (scenario .wad files can contain many maps).
     game.set_doom_map("map01")
-
-    # Sets resolution. Default is 320X240
     game.set_screen_resolution(vzd.ScreenResolution.RES_640X480)
-
-    # Sets the screen buffer format. Not used here but now you can change it. Default is CRCGCB.
     game.set_screen_format(vzd.ScreenFormat.RGB24)
 
-    # Enables depth buffer (turned off by default).
+
     game.set_depth_buffer_enabled(True)
 
     # Enables labeling of in-game objects labeling (turned off by default).
@@ -135,38 +121,48 @@ if __name__ == "__main__":
     actions = [[True, False, False], [False, True, False], [False, False, True]]
 
     # Run this many episodes
-    episodes = 10
+    episodes = 1000  # Increase the number of episodes to 1000
 
-    all_enemy_positions = []
+    # Lists to record left and right positions of enemies for each episode
+    left_positions = []
+    right_positions = []
 
-for i in range(episodes):
-    print("Episode #" + str(i + 1))
-    
-    enemy_positions = []
-    
-    game.new_episode()
-    
-    while not game.is_episode_finished():
-        state = game.get_state()
-        labels = state.labels
+    for i in range(episodes):
+        print("Episode #" + str(i + 1))
 
-        # 使用屏幕宽度来确定敌人是在左边还是右边
-        screen_width = game.get_screen_width()
+        game.new_episode()
 
-        for label in labels:
-            if label.object_name == "Cacodemon":
-                enemy_x = label.x
-                position = "left" if enemy_x < screen_width / 2 else "right"
-                enemy_positions.append((enemy_x, position))
-                break
+        enemy_recorded = False  # Add a flag to check if we have recorded the enemy's position for this episode
 
-        game.make_action(choice(actions))
+        while not game.is_episode_finished() and not enemy_recorded:
+            state = game.get_state()
+            labels = state.labels
+            screen_width = game.get_screen_width()
 
-    all_enemy_positions.append(enemy_positions)
-    print("Episode finished.")
-    print("************************")
+            for label in labels:
+                if label.object_name == "Cacodemon":
+                    enemy_x = label.x
+                    position = "left" if enemy_x < screen_width / 2 else "right"
+                    if position == "left":
+                        left_positions.append(enemy_x)
+                    else:
+                        right_positions.append(enemy_x)
+                    enemy_recorded = True
+                    break
 
-for episode_idx, positions in enumerate(all_enemy_positions):
-    print(f"Episode #{episode_idx + 1} enemy positions:", positions)
+            action = actions[np.random.randint(len(actions))]
+            game.make_action(action)
 
-game.close()
+        print("Episode finished.")
+        print("************************")
+
+    print("Total number of times enemy appeared on the left:", len(left_positions))
+    print("Total number of times enemy appeared on the right:", len(right_positions))
+
+    left_ratio = len(left_positions) / episodes
+    right_ratio = len(right_positions) / episodes
+
+    print("Left ratio:", left_ratio)
+    print("Right ratio:", right_ratio)
+
+    game.close()
