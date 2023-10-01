@@ -17,7 +17,7 @@ class VizDoomMyWayHomeEnv(Env):
         self.game.set_mode(Mode.PLAYER)
         self.game.init()
 
-        self.action_space = spaces.Discrete(3)  # MOVE_FORWARD, TURN_LEFT, TURN_RIGHT
+        self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(low=0, high=255, shape=(3, 640, 480), dtype=np.uint8)
 
     def reset(self):
@@ -36,7 +36,7 @@ class VizDoomMyWayHomeEnv(Env):
         return next_state, reward, done, {}
 
     def render(self, mode='human'):
-        pass  # Visualization can be added if needed
+        pass
 
     def close(self):
         self.game.close()
