@@ -1,5 +1,5 @@
 import time
-from stable_baselines3 import A2C
+from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 import numpy as np
 from vizdoom import DoomGame, ScreenResolution, Button, Mode
@@ -18,7 +18,7 @@ class VizDoomMyWayHomeEnv(Env):
         self.game.set_mode(Mode.PLAYER)
         self.game.init()
 
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(3)  # MOVE_FORWARD, TURN_LEFT, TURN_RIGHT
         self.observation_space = spaces.Box(low=0, high=255, shape=(3, 640, 480), dtype=np.uint8)
 
     def reset(self):
@@ -45,15 +45,15 @@ class VizDoomMyWayHomeEnv(Env):
 env = VizDoomMyWayHomeEnv("../scenarios/my_way_home.cfg")
 env = DummyVecEnv([lambda: env])
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = A2C("CnnPolicy", env, device=device, verbose=1)
+model = PPO("CnnPolicy", env, device=device, verbose=1)
 
 ## Snapshot of the training
-#model = A2C.load("A2C_task1", env)
+#model = PPO.load("PPO_task1", env)
 
 ## only keep the neural network with a brand new environment.
-checkpoint = torch.load("A2C_task1_NN.pth")
-model.policy.load_state_dict(checkpoint["model_state_dict"])
-model.policy.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+#checkpoint = torch.load("PPO_task1_NN.pth")
+#model.policy.load_state_dict(checkpoint["model_state_dict"])
+#model.policy.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
 # Training Process
 episodes = 1
@@ -78,14 +78,14 @@ for episode in range(episodes):
 
     episode_durations.append(time.time() - start_time)
     episode_rewards.append(total_reward)
-    print(f"A2C Agent: Episode {episode + 1} - Duration: {episode_durations[-1]:.2f} seconds - Total Reward: {episode_rewards[-1]}")
+    print(f"PPO Agent: Episode {episode + 1} - Duration: {episode_durations[-1]:.2f} seconds - Total Reward: {episode_rewards[-1]}")
 
 # Print two lists at the end.
 print("Durations:", episode_durations)
-print("Rewards:", episode_rewards)
+print("Rewards:", str(episode_rewards))
 
-model.save("A2C_task1", {"info": "my additional info"})
+model.save("PPO_task1", {"info": "my additional info"})
 torch.save({
     "model_state_dict": model.policy.state_dict(),
     "optimizer_state_dict": model.policy.optimizer.state_dict(),
-}, "A2C_task1_NN.pth")
+}, "PPO_task1_NN.pth")
