@@ -56,8 +56,8 @@ model.policy.load_state_dict(checkpoint["model_state_dict"])
 model.policy.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
 # Training Process
-episodes = 1000
-max_steps = 10000
+episodes = 10
+max_steps = 100000
 
 episode_durations = []
 episode_rewards = []
@@ -83,9 +83,3 @@ for episode in range(episodes):
 # Print two lists at the end.
 print("Durations:", episode_durations)
 print("Rewards:", episode_rewards)
-
-model.save("A2C_GRU_task2", {"info": "my additional info"})
-torch.save({
-    "model_state_dict": model.policy.state_dict(),
-    "optimizer_state_dict": model.policy.optimizer.state_dict(),
-}, "A2C_task2_NN.pth")
